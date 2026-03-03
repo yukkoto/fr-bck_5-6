@@ -13,7 +13,6 @@ Swagger UI: `http://localhost:3000/api-docs`
 ### Фронтенд (порт 3001)
 
 ```bash
-cd lab4-react-express/frontend
 npm install
 npm install -g sass   
 npm run dev           
