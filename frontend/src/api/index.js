@@ -1,32 +1,31 @@
-import axios from 'axios';
+import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: "http://localhost:3000/api",
   headers: {
-    'Content-Type': 'application/json',
-    'accept': 'application/json',
+    "Content-Type": "application/json",
+    accept: "application/json",
   },
 });
 
 export const api = {
-  getProducts: async () => {
-    const response = await apiClient.get('/products');
+  createUser: async (user) => {
+    const response = await apiClient.post("/users", user);
     return response.data;
   },
-  getProductById: async (id) => {
-    const response = await apiClient.get(`/products/${id}`);
+  getUsers: async () => {
+    const response = await apiClient.get("/users");
     return response.data;
   },
-  createProduct: async (product) => {
-    const response = await apiClient.post('/products', product);
+  getUserById: async (id) => {
+    const response = await apiClient.get(`/users/${id}`);
     return response.data;
   },
-  updateProduct: async (id, product) => {
-    const response = await apiClient.patch(`/products/${id}`, product);
+  updateUser: async (id, user) => {
+    const response = await apiClient.patch(`/users/${id}`, user);
     return response.data;
   },
-  deleteProduct: async (id) => {
-    const response = await apiClient.delete(`/products/${id}`);
-    return response.data;
+  deleteUser: async (id) => {
+    await apiClient.delete(`/users/${id}`);
   },
 };

@@ -1,11 +1,8 @@
-import ProductsPage from './pages/ProductsPage/ProductsPage';
+import React from "react";
+import UsersPage from "./pages/UsersPage/UsersPage";
 
 function App() {
-  return (
-    <div className="App">
-      <ProductsPage />
-    </div>
-  );
+  return <UsersPage />;
 }
 
 export default App;

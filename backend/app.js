@@ -7,25 +7,18 @@ const swaggerUi = require('swagger-ui-express');
 const app = express();
 const port = 3000;
 
-// Начальный список товаров (не менее 10)
-let products = [
-  { id: nanoid(6), name: 'Наушники Sony WH-1000XM5', category: 'Аудио', description: 'Беспроводные наушники с активным шумоподавлением, 30 ч работы', price: 24990, stock: 8, rating: 4.8 },
-  { id: nanoid(6), name: 'Клавиатура Logitech MX Keys', category: 'Периферия', description: 'Беспроводная клавиатура с подсветкой и умными клавишами', price: 9490, stock: 15, rating: 4.7 },
-  { id: nanoid(6), name: 'Мышь Razer DeathAdder V3', category: 'Периферия', description: 'Игровая мышь с оптическим сенсором 30 000 DPI', price: 6990, stock: 20, rating: 4.9 },
-  { id: nanoid(6), name: 'Монитор LG UltraWide 34"', category: 'Мониторы', description: 'Ультраширокий монитор 34 дюйма, 2560x1080, 144 Гц', price: 39990, stock: 5, rating: 4.6 },
-  { id: nanoid(6), name: 'Веб-камера Logitech C920', category: 'Видео', description: 'Full HD 1080p, автофокус, встроенный микрофон', price: 7490, stock: 12, rating: 4.5 },
-  { id: nanoid(6), name: 'SSD Samsung 970 EVO 1TB', category: 'Накопители', description: 'NVMe M.2, скорость чтения 3500 МБ/с', price: 8990, stock: 25, rating: 4.9 },
-  { id: nanoid(6), name: 'Зарядка Anker PowerCore 20000', category: 'Аксессуары', description: 'Портативный аккумулятор 20000 мАч, быстрая зарядка', price: 3490, stock: 30, rating: 4.7 },
-  { id: nanoid(6), name: 'Колонка JBL Charge 5', category: 'Аудио', description: 'Портативная Bluetooth-колонка, IPX7, 20 ч работы', price: 12990, stock: 10, rating: 4.8 },
-  { id: nanoid(6), name: 'Коврик SteelSeries QcK XXL', category: 'Периферия', description: 'Игровой коврик 900x400 мм, антискользящая основа', price: 2990, stock: 40, rating: 4.6 },
-  { id: nanoid(6), name: 'USB-хаб Anker 10-in-1', category: 'Аксессуары', description: 'USB-C хаб: HDMI 4K, 3xUSB-A, SD, Ethernet', price: 5490, stock: 18, rating: 4.5 },
-  { id: nanoid(6), name: 'Микрофон Blue Yeti', category: 'Аудио', description: 'Конденсаторный USB-микрофон, 4 режима записи', price: 14990, stock: 7, rating: 4.8 },
+// Начальный список пользователей
+let users = [
+  { id: nanoid(6), name: 'Пётр Иванов', age: 16 },
+  { id: nanoid(6), name: 'Иван Сидоров', age: 18 },
+  { id: nanoid(6), name: 'Дарья Петрова', age: 20 },
+  { id: nanoid(6), name: 'Алексей Смирнов', age: 25 },
+  { id: nanoid(6), name: 'Мария Козлова', age: 22 },
 ];
 
 // Middleware
 app.use(express.json());
 
-// Логирование
 app.use((req, res, next) => {
   res.on('finish', () => {
     console.log(`[${new Date().toISOString()}] [${req.method}] ${res.statusCode} ${req.path}`);
@@ -34,7 +27,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS
 app.use(cors({
   origin: 'http://localhost:3001',
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -47,9 +39,9 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'API интернет-магазина',
+      title: 'API управления пользователями',
       version: '1.0.0',
-      description: 'REST API для управления товарами интернет-магазина. Поддерживает полный набор CRUD-операций.',
+      description: 'REST API для управления пользователями. Поддерживает полный набор CRUD-операций.',
     },
     servers: [{ url: `http://localhost:${port}`, description: 'Локальный сервер' }],
   },
@@ -63,120 +55,83 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
  * @swagger
  * components:
  *   schemas:
- *     Product:
+ *     User:
  *       type: object
  *       required:
  *         - name
- *         - category
- *         - price
- *         - stock
+ *         - age
  *       properties:
  *         id:
  *           type: string
- *           description: Автоматически сгенерированный уникальный ID товара
+ *           description: Автоматически сгенерированный уникальный ID
  *         name:
  *           type: string
- *           description: Название товара
- *         category:
- *           type: string
- *           description: Категория товара
- *           enum: [Аудио, Периферия, Мониторы, Видео, Накопители, Аксессуары, Другое]
- *         description:
- *           type: string
- *           description: Описание товара
- *         price:
- *           type: number
- *           description: Цена товара в рублях
- *         stock:
+ *           description: Имя пользователя
+ *         age:
  *           type: integer
- *           description: Количество на складе
- *         rating:
- *           type: number
- *           nullable: true
- *           description: Рейтинг товара от 0 до 5
+ *           description: Возраст пользователя
  *       example:
  *         id: "abc123"
- *         name: "Наушники Sony WH-1000XM5"
- *         category: "Аудио"
- *         description: "Беспроводные наушники с активным шумоподавлением"
- *         price: 24990
- *         stock: 8
- *         rating: 4.8
- *     ProductInput:
+ *         name: "Пётр Иванов"
+ *         age: 16
+ *
+ *     UserInput:
  *       type: object
  *       required:
  *         - name
- *         - category
- *         - price
- *         - stock
+ *         - age
  *       properties:
  *         name:
  *           type: string
- *           description: Название товара
- *         category:
- *           type: string
- *           description: Категория товара
- *         description:
- *           type: string
- *           description: Описание товара
- *         price:
- *           type: number
- *           description: Цена в рублях
- *         stock:
+ *           description: Имя пользователя
+ *         age:
  *           type: integer
- *           description: Количество на складе
- *         rating:
- *           type: number
- *           description: Рейтинг 0-5
+ *           description: Возраст пользователя
  *       example:
- *         name: "Монитор LG 27"
- *         category: "Мониторы"
- *         description: "IPS, 2560x1440, 165 Гц"
- *         price: 35990
- *         stock: 4
- *         rating: 4.7
+ *         name: "Новый Пользователь"
+ *         age: 21
+ *
  *     Error:
  *       type: object
  *       properties:
  *         error:
  *           type: string
- *           description: Описание ошибки
  *       example:
- *         error: "Товар не найден"
+ *         error: "Пользователь не найден"
  */
 
 // ─── Вспомогательная функция ──────────────────────────────────────────────────
 
-function findProductOr404(id, res) {
-  const product = products.find(p => p.id === id);
-  if (!product) {
-    res.status(404).json({ error: 'Товар не найден' });
+function findUserOr404(id, res) {
+  const user = users.find(u => u.id === id);
+  if (!user) {
+    res.status(404).json({ error: 'Пользователь не найден' });
     return null;
   }
-  return product;
+  return user;
 }
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 /**
  * @swagger
- * /api/products:
+ * /api/users:
  *   post:
- *     summary: Создаёт новый товар
- *     tags: [Products]
+ *     summary: Создаёт нового пользователя
+ *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ProductInput'
+ *             $ref: '#/components/schemas/UserInput'
  *     responses:
  *       201:
- *         description: Товар успешно создан
+ *         description: Пользователь успешно создан
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Product'
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Не указаны обязательные поля
  *         content:
@@ -184,90 +139,86 @@ function findProductOr404(id, res) {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-app.post('/api/products', (req, res) => {
-  const { name, category, description, price, stock, rating } = req.body;
-  if (!name || !category || price === undefined || stock === undefined) {
-    return res.status(400).json({ error: 'Укажите name, category, price, stock' });
+app.post('/api/users', (req, res) => {
+  const { name, age } = req.body;
+  if (!name || age === undefined) {
+    return res.status(400).json({ error: 'Укажите name и age' });
   }
-  const newProduct = {
+  const newUser = {
     id: nanoid(6),
     name: name.trim(),
-    category: category.trim(),
-    description: description ? description.trim() : '',
-    price: Number(price),
-    stock: Number(stock),
-    rating: rating != null ? Number(rating) : null,
+    age: Number(age),
   };
-  products.push(newProduct);
-  res.status(201).json(newProduct);
+  users.push(newUser);
+  res.status(201).json(newUser);
 });
 
 /**
  * @swagger
- * /api/products:
+ * /api/users:
  *   get:
- *     summary: Возвращает список всех товаров
- *     tags: [Products]
+ *     summary: Возвращает список всех пользователей
+ *     tags: [Users]
  *     responses:
  *       200:
- *         description: Список товаров
+ *         description: Список пользователей
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Product'
+ *                 $ref: '#/components/schemas/User'
  */
-app.get('/api/products', (req, res) => {
-  res.json(products);
+app.get('/api/users', (req, res) => {
+  res.json(users);
 });
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/users/{id}:
  *   get:
- *     summary: Получает товар по ID
- *     tags: [Products]
+ *     summary: Получает пользователя по ID
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: ID товара
+ *         description: ID пользователя
  *     responses:
  *       200:
- *         description: Данные товара
+ *         description: Данные пользователя
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Product'
+ *               $ref: '#/components/schemas/User'
  *       404:
- *         description: Товар не найден
+ *         description: Пользователь не найден
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-app.get('/api/products/:id', (req, res) => {
-  const product = findProductOr404(req.params.id, res);
-  if (!product) return;
-  res.json(product);
+app.get('/api/users/:id', (req, res) => {
+  const user = findUserOr404(req.params.id, res);
+  if (!user) return;
+  res.json(user);
 });
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/users/{id}:
  *   patch:
- *     summary: Обновляет данные товара (частично)
- *     tags: [Products]
+ *     summary: Обновляет данные пользователя
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: ID товара
+ *         description: ID пользователя
  *     requestBody:
  *       required: true
  *       content:
@@ -277,26 +228,17 @@ app.get('/api/products/:id', (req, res) => {
  *             properties:
  *               name:
  *                 type: string
- *               category:
- *                 type: string
- *               description:
- *                 type: string
- *               price:
- *                 type: number
- *               stock:
+ *               age:
  *                 type: integer
- *               rating:
- *                 type: number
  *             example:
- *               price: 19990
- *               stock: 5
+ *               age: 30
  *     responses:
  *       200:
- *         description: Обновлённый товар
+ *         description: Обновлённый пользователь
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Product'
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Нет полей для обновления
  *         content:
@@ -304,59 +246,54 @@ app.get('/api/products/:id', (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       404:
- *         description: Товар не найден
+ *         description: Пользователь не найден
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-app.patch('/api/products/:id', (req, res) => {
-  const product = findProductOr404(req.params.id, res);
-  if (!product) return;
+app.patch('/api/users/:id', (req, res) => {
+  const user = findUserOr404(req.params.id, res);
+  if (!user) return;
 
-  const { name, category, description, price, stock, rating } = req.body;
-  const hasFields = [name, category, description, price, stock, rating].some(v => v !== undefined);
-  if (!hasFields) {
+  const { name, age } = req.body;
+  if (name === undefined && age === undefined) {
     return res.status(400).json({ error: 'Нет полей для обновления' });
   }
 
-  if (name !== undefined) product.name = name.trim();
-  if (category !== undefined) product.category = category.trim();
-  if (description !== undefined) product.description = description.trim();
-  if (price !== undefined) product.price = Number(price);
-  if (stock !== undefined) product.stock = Number(stock);
-  if (rating !== undefined) product.rating = Number(rating);
+  if (name !== undefined) user.name = name.trim();
+  if (age !== undefined) user.age = Number(age);
 
-  res.json(product);
+  res.json(user);
 });
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/users/{id}:
  *   delete:
- *     summary: Удаляет товар
- *     tags: [Products]
+ *     summary: Удаляет пользователя
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: ID товара
+ *         description: ID пользователя
  *     responses:
  *       204:
- *         description: Товар успешно удалён (тело ответа отсутствует)
+ *         description: Пользователь успешно удалён
  *       404:
- *         description: Товар не найден
+ *         description: Пользователь не найден
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-app.delete('/api/products/:id', (req, res) => {
-  const exists = products.some(p => p.id === req.params.id);
-  if (!exists) return res.status(404).json({ error: 'Товар не найден' });
-  products = products.filter(p => p.id !== req.params.id);
+app.delete('/api/users/:id', (req, res) => {
+  const exists = users.some(u => u.id === req.params.id);
+  if (!exists) return res.status(404).json({ error: 'Пользователь не найден' });
+  users = users.filter(u => u.id !== req.params.id);
   res.status(204).send();
 });
 
@@ -371,8 +308,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Запуск сервера
 app.listen(port, () => {
   console.log(`Сервер запущен на http://localhost:${port}`);
-  console.log(`Swagger UI доступен: http://localhost:${port}/api-docs`);
+  console.log(`Swagger UI: http://localhost:${port}/api-docs`);
 });
